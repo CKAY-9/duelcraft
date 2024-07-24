@@ -48,7 +48,6 @@ public class Match {
 
     private void prepareGame() {
         this.setDuelWorld(new DuelWorld(this.duels));
-
         DuelWorld world = this.getDuelWorld();
         Random random = new Random();
         long random_id = random.nextLong();
@@ -61,11 +60,23 @@ public class Match {
         this.setChallengedLocation(this.getChallenged().getLocation());
         this.setChallengerInventory(this.getChallenger().getInventory());
         this.setChallengerLocation(this.getChallenger().getLocation());
+
+        this.getChallenged().getInventory().clear();
+        this.getChallenger().getInventory().clear();
     }
 
     private void beginGame() {
+        this.setStarted(true);
         this.getDuelWorld().teleportPlayerToWorldSpawn(this.getChallenged());
         this.getDuelWorld().teleportPlayerToWorldSpawn(this.getChallenger());
+    }
+
+    public void endGameAndDeclareWinner(Player winner, Player losser) {
+        this.setEnded(true);
+
+        Bukkit.broadcastMessage(Utils.formatText("&a&l" + winner.getName() + " has won in a duel against " + losser.getName() + "!"));
+
+        this.cleanupMatch();
     }
 
     public void cleanupMatch() {
@@ -126,6 +137,26 @@ public class Match {
         }
         
         return false;
+    }
+
+    public static void handlePlayerAbandon(Player player, DuelCraft duel_craft) {
+        Match match = Match.getCurrentPlayerMatch(player, duel_craft);
+        if (match == null) {
+            return;
+        }
+
+        if (!match.hasStarted()) {
+            return;
+        }
+
+        Player winner = match.getChallenged();
+        Player losser = match.getChallenger();
+        if (player.getUniqueId() == winner.getUniqueId()) {
+            winner = match.getChallenger();
+            losser = match.getChallenged();
+        }
+
+        match.endGameAndDeclareWinner(winner, losser);
     }
 
     public boolean hasAccepted() {

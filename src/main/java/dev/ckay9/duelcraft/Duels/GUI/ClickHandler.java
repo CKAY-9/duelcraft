@@ -65,7 +65,6 @@ public class ClickHandler implements Listener {
             return;
         }
 
-        // TODO: Get page
         int page = 1;
         ArrayList<Match> invited_matches = Match.getInvitedMatches(clicker, this.duels);
         int selected_invite_index = slot * page;
@@ -90,7 +89,6 @@ public class ClickHandler implements Listener {
             return;
         }
 
-        // TODO: Get page
         int page = 1;
         int selected_player_index = slot * page;
         Player selected_player = (Player)Bukkit.getOnlinePlayers().toArray()[selected_player_index];

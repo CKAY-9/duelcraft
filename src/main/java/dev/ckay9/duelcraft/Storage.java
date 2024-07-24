@@ -2,8 +2,6 @@ package dev.ckay9.duelcraft;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -55,8 +53,9 @@ public class Storage {
             }
 
             if (!config.isSet("config.duel.hotbar")) {
+                config.createSection("config.duel.hotbar");
                 ConfigurationSection section = config.getConfigurationSection("config.duel.hotbar");
-                section.set("config.duel.hotbar.someid", section);
+                section.set("config.duel.hotbar.someid.material", "minecraft:netherite_sword");
             }
 
             config.save(config_file);
