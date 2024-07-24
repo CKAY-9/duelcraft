@@ -1,0 +1,9 @@
+name: DuelCraft
+version: '${project.version}'
+main: dev.ckay9.duelcraft.DuelCraft
+api-version: 1.20.6
+authors: [ CKAY9 ]
+description: A simple duel plugin for Minecraft.
+commands:
+  duel:
+    description: Engage in a duel
