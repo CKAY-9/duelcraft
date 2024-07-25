@@ -43,8 +43,8 @@ class EndCountdown implements Runnable {
         Player challenged = match.getChallenged();
         Player challenger = match.getChallenger();
         for (int i = 0; i < 5; i++) {
-            challenged.sendMessage(Utils.formatText(colors[colors.length - count] + "&lLeaving duel in " + this.count + "s..."));
-            challenger.sendMessage(Utils.formatText(colors[colors.length - count] + "&lLeaving duel in " + this.count + "s..."));
+            challenged.sendMessage(Utils.formatText(colors[colors.length - count] + "&l[DUELS] Leaving duel in " + this.count + "s..."));
+            challenger.sendMessage(Utils.formatText(colors[colors.length - count] + "&l[DUELS] Leaving duel in " + this.count + "s..."));
         }
         challenged.playSound(challenged, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
         challenger.playSound(challenger, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
@@ -78,8 +78,8 @@ class StartCountdown implements Runnable {
         Player challenged = match.getChallenged();
         Player challenger = match.getChallenger();
         for (int i = 0; i < 5; i++) {
-            challenged.sendMessage(Utils.formatText(colors[colors.length - count] +"&lStarting duel in " + this.count + "s..."));
-            challenger.sendMessage(Utils.formatText(colors[colors.length - count] +"&lStarting duel in " + this.count + "s..."));
+            challenged.sendMessage(Utils.formatText(colors[colors.length - count] +"&l[DUELS] Starting duel in " + this.count + "s..."));
+            challenger.sendMessage(Utils.formatText(colors[colors.length - count] +"&l[DUELS] Starting duel in " + this.count + "s..."));
         }
         challenged.playSound(challenged, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
         challenger.playSound(challenger, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
@@ -104,7 +104,7 @@ public class Match {
     private boolean accepted = false;
     private boolean started = false;
     private boolean ended = false;
-    private int seconds_remaining = 300;
+    private int seconds_remaining = Storage.config.getInt("config.match_accept_timeout", 300);
 
     private DuelWorld duel_world;
     private DuelCraft duels;
@@ -115,11 +115,18 @@ public class Match {
         this.setChallenged(challenged);
     }
 
-    public void notifyChallengedOfMatch() {
+    public void notifyPlayersOfInvite() {
         this.getChallenged().playSound(this.getChallenged(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
         this.getChallenger().playSound(this.getChallenger(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
-        this.getChallenger().sendMessage(Utils.formatText("&a&lSent invite to " + this.getChallenged().getName() + "!"));
-        this.getChallenged().sendMessage(Utils.formatText("&a&lYou have been challenged to a DUEL by " + this.getChallenger().getName() + "! Do /duel to see your invites."));
+        this.getChallenger().sendMessage(Utils.formatText("&a&l[DUELS] Sent invite to " + this.getChallenged().getName() + "!"));
+        this.getChallenged().sendMessage(Utils.formatText("&a&l[DUELS] You have been challenged to a DUEL by " + this.getChallenger().getName() + "! Do /duel to see your invites."));
+    }
+
+    public void notifyPlayersOfExpire() {
+        this.getChallenged().playSound(this.getChallenged(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+        this.getChallenger().playSound(this.getChallenger(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+        this.getChallenger().sendMessage(Utils.formatText("&4&l[DUELS] Your challenge to " + this.getChallenged().getName() + " has expired."));
+        this.getChallenged().sendMessage(Utils.formatText("&4&l[DUELS] Your invite by " + this.getChallenger().getName() + " has expired."));
     }
 
     public void acceptChallenge() {
@@ -222,7 +229,7 @@ public class Match {
 
     public void endGameAndDeclareWinner(Player winner, Player loser) {
         this.setEnded(true);
-        Bukkit.broadcastMessage(Utils.formatText("&a&l" + winner.getName() + " has won in a duel against " + loser.getName() + "!"));
+        Bukkit.broadcastMessage(Utils.formatText("&6&l[DUELS] " + winner.getName() + " has won in a duel against " + loser.getName() + "!"));
 
         ConfigurationSection winner_section = Storage.data.getConfigurationSection("players." + winner.getUniqueId());
         ConfigurationSection loser_section = Storage.data.getConfigurationSection("players." + loser.getUniqueId());

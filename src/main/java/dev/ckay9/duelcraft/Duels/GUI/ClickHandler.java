@@ -105,8 +105,9 @@ public class ClickHandler implements Listener {
         if (new_match != null) {
             clicker.closeInventory();
         }
+        
         this.duels.matches.add(new_match);
-        new_match.notifyChallengedOfMatch();
+        new_match.notifyPlayersOfInvite();
     }
 
     private void handleAdmin(InventoryClickEvent event) {
