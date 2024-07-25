@@ -273,6 +273,7 @@ public class Match {
         this.getChallenger().getInventory().setContents(this.getChallengerInventory().getContents());
         //this.getChallenged().spigot().respawn();
 
+        Bukkit.unloadWorld(this.getDuelWorld().getWorld(), false);
         this.getDuelWorld().getWorld().getWorldFolder().delete();
 
         this.duels.matches.remove(match_index);

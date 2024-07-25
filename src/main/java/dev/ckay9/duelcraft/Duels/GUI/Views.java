@@ -17,7 +17,7 @@ import dev.ckay9.duelcraft.Duels.Match;
 public class Views {
     public static void openNavigationMenu(Player player) {
         player.closeInventory();
-        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft: Navigation"));
+        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft (v1.0): Navigation"));
         nav_inventory.clear();
         int running_total = 10;
 
@@ -48,7 +48,7 @@ public class Views {
 
     public static void openChallengeMenu(Player player) {
         player.closeInventory();
-        Inventory challenge_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft: Challenge"));
+        Inventory challenge_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft (v1.0): Challenge"));
         challenge_inventory.clear();
         int running_total = 0;
 
@@ -76,7 +76,7 @@ public class Views {
 
     public static void openInvitesMenu(Player player, DuelCraft duel_craft) {
         player.closeInventory();
-        Inventory invites_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft: Invites"));
+        Inventory invites_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft (v1.0): Invites"));
         invites_inventory.clear();
         int running_total = 0;
         int page = 1;
@@ -109,7 +109,7 @@ public class Views {
 
     public static void openAdminMenu(Player player) {
         player.closeInventory();
-        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft: Admin"));
+        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft (v1.0): Admin"));
         nav_inventory.clear();
 
         nav_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
