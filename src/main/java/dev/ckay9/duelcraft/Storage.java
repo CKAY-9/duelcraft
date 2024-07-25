@@ -2,6 +2,8 @@ package dev.ckay9.duelcraft;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -48,14 +50,37 @@ public class Storage {
                 config.set("config.match_accept_timeout", 300);
             }
 
-            if (!config.isSet("config.match_accept_timeout")) {
-                config.set("config.match_accept_timeout", 300);
+            if (!config.isSet("config.arena_radius")) {
+                config.set("config.arena_radius", 32);
             }
 
             if (!config.isSet("config.duel.hotbar")) {
                 config.createSection("config.duel.hotbar");
                 ConfigurationSection section = config.getConfigurationSection("config.duel.hotbar");
-                section.set("config.duel.hotbar.someid.material", "minecraft:netherite_sword");
+                section.set("someid1.material", "minecraft:netherite_sword");
+                section.set("someid1.count", 1);
+                section.set("someid2.material", "minecraft:netherite_axe");
+                section.set("someid2.count", 1);
+                section.set("someid3.material", "minecraft:enchanted_golden_apple");
+                section.set("someid3.count", 64);
+            }
+
+            if (!config.isSet("config.duel.off_hand")) {
+                config.createSection("config.duel.off_hand");
+                ConfigurationSection section = config.getConfigurationSection("config.duel.off_hand");
+                section.set("material", "minecraft:shield");
+                section.set("count", 64);
+            }
+
+            if (!config.isSet("config.duel.armor")) {
+                config.createSection("config.duel.armor");
+                ConfigurationSection section = config.getConfigurationSection("config.duel.armor");
+                List<String> armor_pieces = new ArrayList<>();
+                armor_pieces.add("minecraft:netherite_helmet");
+                armor_pieces.add("minecraft:netherite_chestplate");
+                armor_pieces.add("minecraft:netherite_leggings");
+                armor_pieces.add("minecraft:netherite_boots");
+                section.set("pieces", armor_pieces);
             }
 
             config.save(config_file);

@@ -78,6 +78,7 @@ public class ClickHandler implements Listener {
         }
 
         selected_invite.acceptChallenge();
+        clicker.closeInventory();
     }
 
     private void handleChallenge(InventoryClickEvent event) {
@@ -101,6 +102,9 @@ public class ClickHandler implements Listener {
         }
 
         Match new_match = new Match(this.duels, clicker, selected_player);
+        if (new_match != null) {
+            clicker.closeInventory();
+        }
         this.duels.matches.add(new_match);
         new_match.notifyChallengedOfMatch();
     }

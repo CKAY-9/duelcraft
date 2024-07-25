@@ -51,7 +51,6 @@ public class Views {
         Inventory challenge_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft: Challenge"));
         challenge_inventory.clear();
         int running_total = 0;
-        int page = 1;
 
         challenge_inventory.setItem(ClickTypes.BACK_CLOSE_LARGE_MENU, GUIHelpers.generateBackButton());
 
@@ -67,7 +66,7 @@ public class Views {
             ItemStack player_head = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta head_meta = (SkullMeta) player_head.getItemMeta();
             head_meta.setDisplayName(ply.getName());
-            head_meta.setOwningPlayer(Bukkit.getOfflinePlayer(ply.getName()));
+            head_meta.setOwningPlayer(Bukkit.getOfflinePlayer(ply.getUniqueId()));
             player_head.setItemMeta(head_meta);
             challenge_inventory.setItem(running_total++, player_head);
         }
@@ -100,7 +99,7 @@ public class Views {
             ItemStack player_head = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta head_meta = (SkullMeta) player_head.getItemMeta();
             head_meta.setDisplayName(ply.getName());
-            head_meta.setOwningPlayer(Bukkit.getOfflinePlayer(ply.getName()));
+            head_meta.setOwningPlayer(Bukkit.getOfflinePlayer(ply.getUniqueId()));
             player_head.setItemMeta(head_meta);
             invites_inventory.setItem(running_total++, player_head);
         }
@@ -112,7 +111,6 @@ public class Views {
         player.closeInventory();
         Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft: Admin"));
         nav_inventory.clear();
-        int running_total = 10;
 
         nav_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
 

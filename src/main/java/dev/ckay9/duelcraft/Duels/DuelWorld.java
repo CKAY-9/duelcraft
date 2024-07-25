@@ -2,6 +2,7 @@ package dev.ckay9.duelcraft.Duels;
 
 import java.util.Random;
 
+import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,24 +13,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 
 import dev.ckay9.duelcraft.DuelCraft;
+import dev.ckay9.duelcraft.Storage;
 
 public class DuelWorld extends ChunkGenerator {
     DuelCraft duels;
     long world_id = -1;
     World duel_world;
     Location center_location;
+    private int teleport_count = 0;
+    int arena_radius = Storage.config.getInt("config.arena_radius", 32);
 
     public DuelWorld(DuelCraft duels) {
         this.duels = duels;
     }
 
     public World generateWorld(String name) {
-        WorldCreator world_creator = new WorldCreator(name);
+        WorldCreator world_creator = new WorldCreator("match_" + name);
 
         world_creator.environment(World.Environment.NORMAL);
         world_creator.type(WorldType.FLAT);
 
         World new_world = world_creator.createWorld();
+        new_world.setDifficulty(Difficulty.PEACEFUL);
         return new_world;
     }
 
@@ -51,7 +56,6 @@ public class DuelWorld extends ChunkGenerator {
 
     public void constructArena() {
         Location center_location = this.getCenterLocation();
-        int radius = 15;
 
         // Fill floor
         for (int x = -100; x < 100; x++) {
@@ -67,8 +71,8 @@ public class DuelWorld extends ChunkGenerator {
         }
 
         // Construct light rights
-        int ring_count = 3;
-        int blocks_per_ring = 5;
+        int ring_count = (int)Math.ceil(arena_radius * 0.5);
+        int blocks_per_ring = 4;
         double light_deg_per_turn = 1;
         for (int ring = 0; ring < ring_count; ring++) {
             for (int deg = 0; deg < 360; deg += light_deg_per_turn) {
@@ -88,13 +92,13 @@ public class DuelWorld extends ChunkGenerator {
 
         // Construct walls
         int wall_height = 10;
-        int wall_count = radius;
+        int wall_count = arena_radius;
         double wall_deg_per_turn = 1;
         for (int wall = 0; wall < wall_count; wall++) {
             for (int deg = 0; deg < 360; deg += wall_deg_per_turn) {
                 double rads = Math.toRadians(deg);
-                double x_distance = Math.cos(rads) * (radius - wall);
-                double z_distance = Math.sin(rads) * (radius - wall);
+                double x_distance = Math.cos(rads) * (arena_radius - wall);
+                double z_distance = Math.sin(rads) * (arena_radius - wall);
 
                 for (int y_add = 0; y_add < wall_height; y_add++) {
                     Location block_location = new Location(
@@ -119,7 +123,14 @@ public class DuelWorld extends ChunkGenerator {
             return;
         }
 
-        player.teleport(this.getCenterLocation());
+        // teleport players to different positions
+        if (teleport_count % 2 == 0) {
+            player.teleport(this.getCenterLocation().clone().add(arena_radius * 0.5, 0, 0)); 
+        } else {
+            player.teleport(this.getCenterLocation().clone().add(-(arena_radius * 0.5), 0, 0)); 
+        }
+
+        teleport_count++;
     }
 
     public long getWorldID() {

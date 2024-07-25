@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import dev.ckay9.duelcraft.Commands.DuelCommand;
 import dev.ckay9.duelcraft.Duels.Match;
 import dev.ckay9.duelcraft.Duels.GUI.ClickHandler;
+import dev.ckay9.duelcraft.Listeners.PlayerDamage;
 import dev.ckay9.duelcraft.Listeners.PlayerDeath;
 import dev.ckay9.duelcraft.Listeners.PlayerJoin;
 import dev.ckay9.duelcraft.Listeners.PlayerLeave;
@@ -27,6 +28,7 @@ public class DuelCraft extends JavaPlugin {
         manager.registerEvents(new ClickHandler(this), this);
         manager.registerEvents(new PlayerJoin(this), this);
         manager.registerEvents(new PlayerLeave(this), this);
+        manager.registerEvents(new PlayerDamage(this), this);
         manager.registerEvents(new PlayerDeath(this), this);
     }
 
