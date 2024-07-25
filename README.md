@@ -12,7 +12,7 @@
 
 ## <div align="center">How to Install</div>
 1. Download the latest release of DuelCraft
-2. Drop the `duelcraft-version.jar` file into your server's `./plugin` folder
+2. Drop the `duelcraft-version.jar` file into your server's `./plugins` folder
 3. Reload/restart your server
 4. You're done
 
