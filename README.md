@@ -57,3 +57,12 @@ players:
         deaths: int
     ...
 ```
+
+
+<div align="center">
+    <img src="./assets/2024-07-25_15.48.57-min.png" width=auto height=auto />
+    <img src="./assets/2024-07-25_15.49.30-min.png" width=auto height=auto />
+    <img src="./assets/2024-07-25_15.49.50-min.png" width=auto height=auto />
+    <img src="./assets/2024-07-25_15.50.03-min.png" width=auto height=auto />
+    <img src="./assets/2024-07-25_15.50.34-min.png" width=auto height=auto />
+</div>
