@@ -6,7 +6,7 @@
 
     <groupId>dev.ckay9</groupId>
     <artifactId>duelcraft</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>duelcraft</name>

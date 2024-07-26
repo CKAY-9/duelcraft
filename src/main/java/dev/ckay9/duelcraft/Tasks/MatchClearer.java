@@ -19,7 +19,7 @@ public class MatchClearer implements Runnable {
     public void run() {
         for (int i = 0; i < this.duel_craft.matches.size(); i++) {
             Match match = this.duel_craft.matches.get(i);
-            if (match.hasAccepted() || match.hasStarted() || match.hasEnded()) {
+            if (match.hasAccepted() || match.hasStarted() || match.hasEnded() || !match.hasBeenCreated()) {
                 continue;
             }
             

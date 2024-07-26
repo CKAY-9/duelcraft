@@ -1,6 +1,7 @@
 package dev.ckay9.duelcraft.Duels.GUI;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,28 +16,49 @@ import dev.ckay9.duelcraft.Utils;
 import dev.ckay9.duelcraft.Duels.Match;
 
 public class Views {
-    public static void openNavigationMenu(Player player) {
+    public static void openNavigationMenu(Player player, DuelCraft duel_craft) {
         player.closeInventory();
-        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft (v1.0): Navigation"));
+        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Navigation"));
         nav_inventory.clear();
         int running_total = 10;
 
         nav_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
 
-        ItemStack challenge_button = new ItemStack(Material.BLACK_CONCRETE, 1);
+        ItemStack challenge_button = new ItemStack(Material.DIAMOND_SWORD, 1);
         ItemMeta challenge_meta = challenge_button.getItemMeta();
-        challenge_meta.setDisplayName(Utils.formatText("&lCHALLENGE A PLAYER"));
+        challenge_meta.setDisplayName(Utils.formatText("&4&lCHALLENGE A PLAYER"));
         challenge_button.setItemMeta(challenge_meta);
         nav_inventory.setItem(running_total++, challenge_button);
 
-        ItemStack invites_button = new ItemStack(Material.GREEN_CONCRETE, 1);
+        ItemStack invites_button = new ItemStack(Material.MAP, 1);
         ItemMeta invites_meta = invites_button.getItemMeta();
         invites_meta.setDisplayName(Utils.formatText("&a&lVIEW INVITES"));
         invites_button.setItemMeta(invites_meta);
         nav_inventory.setItem(running_total++, invites_button);
 
+        ItemStack reset_stats_button = new ItemStack(Material.TNT, 1);
+        ItemMeta reset_stats_meta = reset_stats_button.getItemMeta();
+        reset_stats_meta.setDisplayName(Utils.formatText("&4&lRESET STATS"));
+        reset_stats_button.setItemMeta(reset_stats_meta);
+        nav_inventory.setItem(running_total++, reset_stats_button);
+
+        ItemStack about_button = new ItemStack(Material.BOOK, 1);
+        ItemMeta about_meta = about_button.getItemMeta();
+        about_meta.setDisplayName(Utils.formatText("&5&lABOUT DUELCRAFT"));
+        about_button.setItemMeta(about_meta);
+        nav_inventory.setItem(running_total++, about_button);
+
+        boolean is_waiting = Match.isPlayerWaiting(player, duel_craft);
+        if (is_waiting) {
+            ItemStack cancel_button = new ItemStack(Material.BARRIER, 1);
+            ItemMeta cancel_meta = about_button.getItemMeta();
+            cancel_meta.setDisplayName(Utils.formatText("&4&lCANCEL DUEL REQUEST"));
+            cancel_button.setItemMeta(cancel_meta);
+            nav_inventory.setItem(running_total++, cancel_button);
+        }
+
         if (player.isOp()) {
-            ItemStack admin_button = new ItemStack(Material.RED_CONCRETE, 1);
+            ItemStack admin_button = new ItemStack(Material.END_PORTAL_FRAME, 1);
             ItemMeta admin_meta = admin_button.getItemMeta();
             admin_meta.setDisplayName(Utils.formatText("&c&lADMIN"));
             admin_button.setItemMeta(admin_meta);
@@ -48,7 +70,7 @@ public class Views {
 
     public static void openChallengeMenu(Player player) {
         player.closeInventory();
-        Inventory challenge_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft (v1.0): Challenge"));
+        Inventory challenge_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Challenge"));
         challenge_inventory.clear();
         int running_total = 0;
 
@@ -76,7 +98,7 @@ public class Views {
 
     public static void openInvitesMenu(Player player, DuelCraft duel_craft) {
         player.closeInventory();
-        Inventory invites_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft (v1.0): Invites"));
+        Inventory invites_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Invites"));
         invites_inventory.clear();
         int running_total = 0;
         int page = 1;
@@ -107,13 +129,169 @@ public class Views {
         player.openInventory(invites_inventory);
     }
 
+    public static void openDuelTypeSelect(Player player) {
+        player.closeInventory();
+        if (!player.isOp()) {
+            return;
+        }
+        
+        Inventory duel_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Duel Type"));
+        duel_inventory.clear();
+        int running_total = 10;
+
+        duel_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
+
+        ItemStack classic_button = new ItemStack(Material.GOLDEN_SWORD, 1);
+        ItemMeta classic_meta = classic_button.getItemMeta();
+        classic_meta.setDisplayName(Utils.formatText("&6&lCLASSIC DUEL"));
+        List<String> classic_lore = new ArrayList<>();
+        classic_lore.add(Utils.formatText("&6This is your classic 1v1. A simple circular arena, last one remaining wins!"));
+        classic_meta.setLore(classic_lore);
+        classic_button.setItemMeta(classic_meta);
+        duel_inventory.setItem(running_total++, classic_button);
+
+        ItemStack spleef_button = new ItemStack(Material.SNOW, 1);
+        ItemMeta spleef_meta = spleef_button.getItemMeta();
+        spleef_meta.setDisplayName(Utils.formatText("&3&lSPLEEF DUEL"));
+        List<String> spleef_lore = new ArrayList<>();
+        spleef_lore.add(Utils.formatText("&3The classic Spleef gamemode. A vertical tower, don't fall too far!"));
+        spleef_meta.setLore(spleef_lore);
+        spleef_button.setItemMeta(spleef_meta);
+        duel_inventory.setItem(running_total++, spleef_button);
+
+        ItemStack bow_button = new ItemStack(Material.BOW, 1);
+        ItemMeta bow_meta = bow_button.getItemMeta();
+        bow_meta.setDisplayName(Utils.formatText("&0&lCOMING SOON..."));
+        List<String> bow_lore = new ArrayList<>();
+        bow_lore.add(Utils.formatText("&0What's next???"));
+        bow_meta.setLore(bow_lore);
+        bow_button.setItemMeta(bow_meta);
+        duel_inventory.setItem(running_total++, bow_button);
+
+        player.openInventory(duel_inventory);
+    }
+
     public static void openAdminMenu(Player player) {
         player.closeInventory();
-        Inventory nav_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft (v1.0): Admin"));
-        nav_inventory.clear();
+        if (!player.isOp()) {
+            return;
+        }
+        
+        Inventory admin_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Admin"));
+        admin_inventory.clear();
+        int running_total = 10;
 
-        nav_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
+        admin_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
 
-        player.openInventory(nav_inventory);
+        ItemStack clear_duels_button = new ItemStack(Material.IRON_BARS, 1);
+        ItemMeta clear_duels_meta = clear_duels_button.getItemMeta();
+        clear_duels_meta.setDisplayName(Utils.formatText("&c&lCLEAR ALL ONGOING DUELS"));
+        List<String> cd_lore = new ArrayList<>();
+        cd_lore.add(Utils.formatText("&c&lThis will cleanup and clear all duels that are active."));
+        clear_duels_meta.setLore(cd_lore);
+        clear_duels_button.setItemMeta(clear_duels_meta);
+        admin_inventory.setItem(running_total++, clear_duels_button);
+
+        ItemStack reset_stats_button = new ItemStack(Material.LEATHER_HELMET, 1);
+        ItemMeta reset_stats_meta = reset_stats_button.getItemMeta();
+        reset_stats_meta.setDisplayName(Utils.formatText("&c&lRESET ALL STATS"));
+        List<String> rs_lore = new ArrayList<>();
+        rs_lore.add(Utils.formatText("&c&lThis will reset all save stats for players (i.e. wins/losses are set to 0)."));
+        reset_stats_meta.setLore(rs_lore);
+        reset_stats_button.setItemMeta(reset_stats_meta);
+        admin_inventory.setItem(running_total++, reset_stats_button);
+
+        ItemStack config_menu_button = new ItemStack(Material.BEACON, 1);
+        ItemMeta config_menu_meta = config_menu_button.getItemMeta();
+        config_menu_meta.setDisplayName(Utils.formatText("&b&lCONFIG"));
+        List<String> cm_lore = new ArrayList<>();
+        cm_lore.add(Utils.formatText("&bEdit your DuelCraft settings/config. Requires manual restart to update config."));
+        config_menu_meta.setLore(cm_lore);
+        config_menu_button.setItemMeta(config_menu_meta);
+        admin_inventory.setItem(running_total++, config_menu_button);
+
+        player.openInventory(admin_inventory);
+    }
+
+    public static void openAboutMenu(Player player) {
+        player.closeInventory();
+        if (!player.isOp()) {
+            return;
+        }
+
+        Inventory about_inventory = Bukkit.createInventory(null, 27, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": About"));
+        about_inventory.clear();
+
+        about_inventory.setItem(ClickTypes.BACK_CLOSE_SMALL_MENU, GUIHelpers.generateBackButton());
+
+        ItemStack information_text = new ItemStack(Material.PAPER, 1);
+        ItemMeta info_meta = information_text.getItemMeta();
+        info_meta.setDisplayName(Utils.formatText("&6&l* DuelCraft by CKAY9 *"));
+        List<String> info_lore = new ArrayList<>();
+        info_lore.add(Utils.formatText("&1Installed Version: " + DuelCraft.duels_version));
+        info_lore.add(Utils.formatText("&9GitHub Repository: https://github.com/CKAY-9/duelcraft"));
+        info_lore.add(Utils.formatText("DuelCraft is a simple dueling plugin for Minecraft servers."));
+        info_lore.add(Utils.formatText("It offers easy-to-use and configurable 1v1 matches (duels)"));
+        info_lore.add(Utils.formatText("seperated from the rest of the server."));
+        info_meta.setLore(info_lore);
+        information_text.setItemMeta(info_meta);
+        about_inventory.setItem(13, information_text);
+
+        player.openInventory(about_inventory);
+    }
+
+    public static void openConfigMenu(Player player) {
+        player.closeInventory();
+        if (!player.isOp()) {
+            return;
+        }
+
+        Inventory config_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Config"));
+        config_inventory.clear();
+        int running_total = 0;
+
+        config_inventory.setItem(ClickTypes.BACK_CLOSE_LARGE_MENU, GUIHelpers.generateBackButton());
+
+        ItemStack set_armor_button = new ItemStack(Material.NETHERITE_HELMET, 1);
+        ItemMeta armor_meta = set_armor_button.getItemMeta();
+        armor_meta.setDisplayName(Utils.formatText("&9&lSET ARMOR"));
+        List<String> sa_lore = new ArrayList<>();
+        sa_lore.add(Utils.formatText("Set the default armor given in duels."));
+        sa_lore.add(Utils.formatText("&c&lThis will reset the existing armor settings."));
+        armor_meta.setLore(sa_lore);
+        set_armor_button.setItemMeta(armor_meta);
+        config_inventory.setItem(running_total++, set_armor_button);
+
+        ItemStack set_hotbar_button = new ItemStack(Material.GOLDEN_SWORD, 1);
+        ItemMeta hotbar_meta = set_hotbar_button.getItemMeta();
+        hotbar_meta.setDisplayName(Utils.formatText("&e&lSET HOTBAR"));
+        List<String> sh_lore = new ArrayList<>();
+        sh_lore.add(Utils.formatText("Set the default hotbar given in duels."));
+        sh_lore.add(Utils.formatText("&c&lThis will reset the existing hotbar settings."));
+        hotbar_meta.setLore(sh_lore);
+        set_hotbar_button.setItemMeta(hotbar_meta);
+        config_inventory.setItem(running_total++, set_hotbar_button);
+
+        ItemStack set_off_hand_button = new ItemStack(Material.SHIELD, 1);
+        ItemMeta off_hand_meta = set_off_hand_button.getItemMeta();
+        off_hand_meta.setDisplayName(Utils.formatText("&a&lSET OFF-HAND"));
+        List<String> oh_lore = new ArrayList<>();
+        oh_lore.add(Utils.formatText("Set the default off-hand item given in duels."));
+        oh_lore.add(Utils.formatText("&c&lThis will reset the existing off-hand settings."));
+        off_hand_meta.setLore(oh_lore);
+        set_off_hand_button.setItemMeta(off_hand_meta);
+        config_inventory.setItem(running_total++, set_off_hand_button);
+
+        ItemStack set_radius_button = new ItemStack(Material.OAK_FENCE, 1);
+        ItemMeta radius_meta = set_radius_button.getItemMeta();
+        radius_meta.setDisplayName(Utils.formatText("&2&lSET ARENA RADIUS"));
+        List<String> sr_lore = new ArrayList<>();
+        sr_lore.add(Utils.formatText("Set the default arena radius for duels."));
+        sr_lore.add(Utils.formatText("&c&lThis will reset the existing arena radius setting."));
+        radius_meta.setLore(sr_lore);
+        set_radius_button.setItemMeta(radius_meta);
+        config_inventory.setItem(running_total++, set_radius_button);
+
+        player.openInventory(config_inventory);
     }
 }

@@ -1,9 +1,13 @@
 package dev.ckay9.duelcraft.Duels.GUI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +16,9 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import dev.ckay9.duelcraft.DuelCraft;
+import dev.ckay9.duelcraft.Storage;
+import dev.ckay9.duelcraft.Utils;
+import dev.ckay9.duelcraft.Duels.DuelType;
 import dev.ckay9.duelcraft.Duels.Match;
 
 public class ClickHandler implements Listener {
@@ -19,6 +26,38 @@ public class ClickHandler implements Listener {
 
     public ClickHandler(DuelCraft duels) {
         this.duels = duels;
+    }
+
+    private void resetPlayerStats(Player player) {
+        ConfigurationSection player_section = Storage.data.getConfigurationSection("players." + player.getUniqueId());
+        if (player_section == null) {
+            return;
+        }
+
+        player_section.set("wins", 0);
+        player_section.set("losses", 0);
+        player_section.set("kills", 0);
+        player_section.set("deaths", 0);
+        
+        try {
+            Storage.data.save(Storage.data_file);
+        } catch (IOException ex) {
+            this.duels.getLogger().warning(ex.toString());
+        }
+    }
+
+    private void cancelMatch(Player player) {
+        Match match = Match.getCurrentPlayerMatch(player, this.duels);
+        if (match == null) {
+            return;
+        }
+
+        if (!match.hasAccepted() && !match.hasStarted() && !match.hasEnded()) {
+            match.deleteMatch();
+            player.sendMessage(Utils.formatText("&2&l[DUELS] Successfully deleted match!"));
+            player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+            Views.openNavigationMenu(player, this.duels);
+        }
     }
 
     private void handleNavigation(InventoryClickEvent event) {
@@ -32,6 +71,13 @@ public class ClickHandler implements Listener {
         int running_total = 10;
         nav_items.put(running_total++, "challenge");
         nav_items.put(running_total++, "invites");
+        nav_items.put(running_total++, "stat_reset");
+        nav_items.put(running_total++, "about");
+
+        boolean is_waiting = Match.isPlayerWaiting(player, this.duels);
+        if (is_waiting) {
+            nav_items.put(running_total++, "cancel");
+        }
 
         if (event.getWhoClicked().isOp()) {
             nav_items.put(running_total++, "admin");
@@ -46,8 +92,19 @@ public class ClickHandler implements Listener {
                 case "challenge":
                     Views.openChallengeMenu(player);
                     break;
+                case "stat_reset":
+                    resetPlayerStats(player);
+                    player.sendMessage(Utils.formatText("&2&l[DUELS] Successfully reset stats!"));
+                    player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+                    break;
+                case "about":
+                    Views.openAboutMenu(player);
+                    break;
                 case "invites":
                     Views.openInvitesMenu(player, this.duels);
+                    break;
+                case "cancel":
+                    cancelMatch(player);
                     break;
                 case "admin":
                     Views.openAdminMenu(player);
@@ -61,7 +118,7 @@ public class ClickHandler implements Listener {
         int slot = event.getSlot();
 
         if (slot == ClickTypes.BACK_CLOSE_LARGE_MENU) {
-            Views.openNavigationMenu(clicker);
+            Views.openNavigationMenu(clicker, this.duels);
             return;
         }
 
@@ -86,7 +143,7 @@ public class ClickHandler implements Listener {
         int slot = event.getSlot();
 
         if (slot == ClickTypes.BACK_CLOSE_LARGE_MENU) {
-            Views.openNavigationMenu(clicker);
+            Views.openNavigationMenu(clicker, this.duels);
             return;
         }
 
@@ -102,17 +159,119 @@ public class ClickHandler implements Listener {
         }
 
         Match new_match = new Match(this.duels, clicker, selected_player);
-        if (new_match != null) {
-            clicker.closeInventory();
-        }
-        
         this.duels.matches.add(new_match);
-        new_match.notifyPlayersOfInvite();
+        Views.openDuelTypeSelect(clicker);
+    }
+
+    private void handleDuelTypeSelect(InventoryClickEvent event) {
+        Player clicker = (Player)event.getWhoClicked();
+        int slot = event.getSlot();
+
+        Match match = Match.getCurrentPlayerMatch(clicker, this.duels);
+        if (match == null) {
+            Views.openChallengeMenu(clicker);
+            return;
+        }
+
+        if (slot == ClickTypes.BACK_CLOSE_SMALL_MENU) {
+            match.deleteMatch();
+            Views.openChallengeMenu(clicker);
+            return;
+        }
+
+        switch (slot) {
+            case 10: // Classic
+                match.setDuelType(DuelType.CLASSIC);
+                break;
+            case 11: // Spleef
+                match.setDuelType(DuelType.SPLEEF);
+                break;
+            default:
+                break;
+        }
+
+        match.notifyPlayersOfInvite();
+        clicker.closeInventory();
+    }
+
+    private void clearDuels() {
+        for (int i = 0; i < this.duels.matches.size(); i++) {
+            Match match = this.duels.matches.get(i);
+            match.cleanupMatch();
+        } 
+
+        this.duels.matches.clear();
+    }
+
+    private void resetStats() {
+        ConfigurationSection players_section = Storage.data.getConfigurationSection("players");
+        if (players_section == null) {
+            return;
+        }
+
+        Set<String> keys = players_section.getKeys(false);
+        for (String key : keys) {
+            ConfigurationSection player_section = players_section.getConfigurationSection(key);
+            player_section.set("wins", 0);
+            player_section.set("losses", 0);
+            player_section.set("kills", 0);
+            player_section.set("deaths", 0);
+        }
+
+        try {
+            Storage.data.save(Storage.data_file);
+        } catch (IOException ex) {
+            this.duels.getLogger().warning(ex.toString());
+        }
     }
 
     private void handleAdmin(InventoryClickEvent event) {
         if (event.getSlot() == ClickTypes.BACK_CLOSE_SMALL_MENU) {
-            Views.openNavigationMenu((Player)event.getWhoClicked());
+            Views.openNavigationMenu((Player)event.getWhoClicked(), this.duels);
+            return;
+        }
+
+        Player clicker = (Player)event.getWhoClicked();
+        if (!clicker.isOp()) {
+            return;
+        }
+
+        int slot = event.getSlot();
+        switch (slot) {
+            case 10: // Clear duels slot
+                clearDuels();
+                clicker.sendMessage(Utils.formatText("&2&l[DUELS] Successfully cleared duels!"));
+                clicker.playSound(clicker, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+                break;
+            case 11: // Reset stats slot
+                resetStats();
+                clicker.sendMessage(Utils.formatText("&2&l[DUELS] Successfully reset stats!"));
+                clicker.playSound(clicker, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+                break;
+            case 12: // Config slot
+                Views.openConfigMenu(clicker);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void handleConfig(InventoryClickEvent event) {
+        Player clicker = (Player)event.getWhoClicked();
+        if (event.getSlot() == ClickTypes.BACK_CLOSE_LARGE_MENU) {
+            Views.openNavigationMenu(clicker, this.duels);
+            return;
+        }
+        
+        if (!clicker.isOp()) {
+            return;
+        }
+    }
+
+    private void handleAbout(InventoryClickEvent event) {
+        Player clicker = (Player)event.getWhoClicked();
+        if (event.getSlot() == ClickTypes.BACK_CLOSE_SMALL_MENU) {
+            Views.openNavigationMenu(clicker, this.duels);
             return;
         }
     }
@@ -141,6 +300,18 @@ public class ClickHandler implements Listener {
         }
         if (inv_title.contains("Admin")) {
             handleAdmin(event);
+            return;
+        }
+        if (inv_title.contains("Config")) {
+            handleConfig(event);
+            return;
+        }
+        if (inv_title.contains("About")) {
+            handleAbout(event);
+            return;
+        }
+        if (inv_title.contains("Duel Type")) {
+            handleDuelTypeSelect(event);
             return;
         }
     }

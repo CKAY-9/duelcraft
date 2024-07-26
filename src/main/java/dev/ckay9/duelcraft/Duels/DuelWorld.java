@@ -21,7 +21,9 @@ public class DuelWorld extends ChunkGenerator {
     World duel_world;
     Location center_location;
     private int teleport_count = 0;
-    int arena_radius = Storage.config.getInt("config.arena_radius", 32);
+    public int arena_radius = Storage.config.getInt("config.arena_radius", 32);
+    public int wall_height = 10;
+    public int floor_count = 10;
 
     public DuelWorld(DuelCraft duels) {
         this.duels = duels;
@@ -54,7 +56,86 @@ public class DuelWorld extends ChunkGenerator {
         return materials[random_index];
     }
 
-    public void constructArena() {
+    public void constructSpleefArena() {
+        Location center_location = this.getCenterLocation();
+
+        // Fill floor
+        for (int floor = 0; floor < (floor_count + 1); floor++) {
+            for (int x = -100; x < 100; x++) {
+                for (int z = -100; z < 100; z++) {
+                    if (floor == floor_count) {
+                        Block block = this.getWorld().getBlockAt(
+                            new Location(this.getWorld(),
+                                    center_location.getX() + x,
+                                    center_location.getY() - (1 + (floor * wall_height)),
+                                    center_location.getZ() + z));
+                        block.setType(Material.BEDROCK);
+                        continue;
+                    }
+
+                    Block block = this.getWorld().getBlockAt(
+                            new Location(this.getWorld(),
+                                    center_location.getX() + x,
+                                    center_location.getY() - (1 + (floor * wall_height)),
+                                    center_location.getZ() + z));
+                    block.setType(Material.SNOW_BLOCK);
+
+                    Block light_block = this.getWorld().getBlockAt(
+                            new Location(this.getWorld(),
+                                    center_location.getX() + x,
+                                    center_location.getY() - (floor * wall_height),
+                                    center_location.getZ() + z));
+                    light_block.setType(Material.LIGHT);
+                }
+            }
+        }
+
+        // Construct top walls
+        int wall_count = arena_radius;
+        double wall_deg_per_turn = 1;
+        for (int wall = 0; wall < wall_count; wall++) {
+            for (int deg = 0; deg < 360; deg += wall_deg_per_turn) {
+                double rads = Math.toRadians(deg);
+                double x_distance = Math.cos(rads) * (arena_radius - wall);
+                double z_distance = Math.sin(rads) * (arena_radius - wall);
+
+                for (int y_add = 0; y_add < wall_height; y_add++) {
+                    Location block_location = new Location(
+                            this.getWorld(),
+                            center_location.getX() + x_distance,
+                            center_location.getY() + y_add + (wall * wall_height),
+                            center_location.getZ() + z_distance);
+                    Block block = this.getWorld().getBlockAt(block_location);
+                    if (y_add == 0 && wall != 0) {
+                        block.setType(Material.GLOWSTONE);
+                    } else {
+                        block.setType(this.randomWallMaterial());
+                    }
+                }
+            }
+        }
+
+        // Construct down walls
+        for (int floor = 0; floor < floor_count; floor++) {
+            for (int deg = 0; deg < 360; deg += wall_deg_per_turn) {
+                double rads = Math.toRadians(deg);
+                double x_distance = Math.cos(rads) * (arena_radius);
+                double z_distance = Math.sin(rads) * (arena_radius);
+
+                for (int y_add = 0; y_add < wall_height; y_add++) {
+                    Location block_location = new Location(
+                            this.getWorld(),
+                            center_location.getX() + x_distance,
+                            center_location.getY() - (y_add + (floor * wall_height)),
+                            center_location.getZ() + z_distance);
+                    Block block = this.getWorld().getBlockAt(block_location);
+                    block.setType(this.randomWallMaterial());
+                }
+            }
+        }
+    }
+
+    public void constructClassicArena() {
         Location center_location = this.getCenterLocation();
 
         // Fill floor
@@ -71,7 +152,7 @@ public class DuelWorld extends ChunkGenerator {
         }
 
         // Construct light rights
-        int ring_count = (int)Math.ceil(arena_radius * 0.5);
+        int ring_count = (int) Math.ceil(arena_radius * 0.5);
         int blocks_per_ring = 4;
         double light_deg_per_turn = 1;
         for (int ring = 0; ring < ring_count; ring++) {
@@ -80,18 +161,16 @@ public class DuelWorld extends ChunkGenerator {
                 double x_distance = Math.cos(rads) * (ring * blocks_per_ring);
                 double z_distance = Math.sin(rads) * (ring * blocks_per_ring);
                 Location block_location = new Location(
-                    this.getWorld(),
-                    center_location.getX() + x_distance,
-                    center_location.getY() - 1,
-                    center_location.getZ() + z_distance
-                );
+                        this.getWorld(),
+                        center_location.getX() + x_distance,
+                        center_location.getY() - 1,
+                        center_location.getZ() + z_distance);
                 Block block = this.getWorld().getBlockAt(block_location);
                 block.setType(Material.GLOWSTONE);
             }
         }
 
         // Construct walls
-        int wall_height = 10;
         int wall_count = arena_radius;
         double wall_deg_per_turn = 1;
         for (int wall = 0; wall < wall_count; wall++) {
@@ -102,11 +181,10 @@ public class DuelWorld extends ChunkGenerator {
 
                 for (int y_add = 0; y_add < wall_height; y_add++) {
                     Location block_location = new Location(
-                        this.getWorld(),
-                        center_location.getX() + x_distance,
-                        center_location.getY() + y_add + (wall * wall_height),
-                        center_location.getZ() + z_distance
-                    );
+                            this.getWorld(),
+                            center_location.getX() + x_distance,
+                            center_location.getY() + y_add + (wall * wall_height),
+                            center_location.getZ() + z_distance);
                     Block block = this.getWorld().getBlockAt(block_location);
                     if (y_add == 0 && wall != 0) {
                         block.setType(Material.GLOWSTONE);
@@ -125,9 +203,9 @@ public class DuelWorld extends ChunkGenerator {
 
         // teleport players to different positions
         if (teleport_count % 2 == 0) {
-            player.teleport(this.getCenterLocation().clone().add(arena_radius * 0.5, 0, 0)); 
+            player.teleport(this.getCenterLocation().clone().add(arena_radius * 0.5, 0, 0));
         } else {
-            player.teleport(this.getCenterLocation().clone().add(-(arena_radius * 0.5), 0, 0)); 
+            player.teleport(this.getCenterLocation().clone().add(-(arena_radius * 0.5), 0, 0));
         }
 
         teleport_count++;
