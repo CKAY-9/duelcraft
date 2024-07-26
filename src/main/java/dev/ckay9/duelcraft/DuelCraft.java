@@ -16,12 +16,13 @@ import dev.ckay9.duelcraft.Listeners.PlayerDeath;
 import dev.ckay9.duelcraft.Listeners.PlayerJoin;
 import dev.ckay9.duelcraft.Listeners.PlayerLeave;
 import dev.ckay9.duelcraft.Listeners.PlayerMove;
+import dev.ckay9.duelcraft.Listeners.ProjectileEvents;
 import dev.ckay9.duelcraft.Tasks.MatchClearer;
 
 public class DuelCraft extends JavaPlugin {
     public ArrayList<Match> matches = new ArrayList<>();
     public MatchClearer match_clearer;
-    public static String duels_version = "v1.1.1";
+    public static String duels_version = "v1.1.2";
 
     @Override
     public void onEnable() {
@@ -44,6 +45,7 @@ public class DuelCraft extends JavaPlugin {
         manager.registerEvents(new PlayerDamage(this), this);
         manager.registerEvents(new PlayerDeath(this), this);
         manager.registerEvents(new BlockInteract(this), this);
+        manager.registerEvents(new ProjectileEvents(this), this);
         manager.registerEvents(new PlayerMove(this), this);
     }
 

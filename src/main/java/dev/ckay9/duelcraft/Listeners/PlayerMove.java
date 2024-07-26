@@ -31,11 +31,34 @@ public class PlayerMove implements Listener {
             return;
         }
 
+        if (player.getWorld() != match.getDuelWorld().getWorld()) {
+            return;
+        }
+
         Location player_location = player.getLocation();
         if (match.getDuelType() == DuelType.SPLEEF) {
             DuelWorld duel_world = match.getDuelWorld();
             double y_pos = player_location.getY();
             double spleef_bottom_y = duel_world.getCenterLocation().getY() - (duel_world.floor_count * duel_world.wall_height) + 1;
+            boolean is_below_minimum = y_pos <= spleef_bottom_y;
+            if (is_below_minimum) {
+                boolean is_challenged = match.getChallenged().getUniqueId() == player.getUniqueId();
+                if (is_challenged) {
+                    match.endGameAndDeclareWinner(match.getChallenger(), player);
+                    return;
+                }
+
+                match.endGameAndDeclareWinner(match.getChallenged(), player);
+                return;
+            }
+
+            return;
+        }
+    
+        if (match.getDuelType() == DuelType.BLOWBOW) {
+            DuelWorld duel_world = match.getDuelWorld();
+            double y_pos = player_location.getY();
+            double spleef_bottom_y = duel_world.getCenterLocation().getY() - 10;
             boolean is_below_minimum = y_pos <= spleef_bottom_y;
             if (is_below_minimum) {
                 boolean is_challenged = match.getChallenged().getUniqueId() == player.getUniqueId();

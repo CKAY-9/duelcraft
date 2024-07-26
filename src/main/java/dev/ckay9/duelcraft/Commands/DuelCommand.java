@@ -73,6 +73,9 @@ public class DuelCommand implements CommandExecutor {
                 case "spleef":
                     Match.createSpleefMatch(duels, player, selected_player);
                     break;
+                case "blowbow":
+                    Match.createBlowBowMatch(duels, player, selected_player);
+                    break;
                 case "accept":
                     if (active_match == null) {
                         break;

@@ -161,9 +161,9 @@ public class Views {
 
         ItemStack bow_button = new ItemStack(Material.BOW, 1);
         ItemMeta bow_meta = bow_button.getItemMeta();
-        bow_meta.setDisplayName(Utils.formatText("&0&lCOMING SOON..."));
+        bow_meta.setDisplayName(Utils.formatText("&c&lBLOW BOW"));
         List<String> bow_lore = new ArrayList<>();
-        bow_lore.add(Utils.formatText("&0What's next???"));
+        bow_lore.add(Utils.formatText("&cTry to knock your opponent off the platform with &lEXPLOSIVE BOWS"));
         bow_meta.setLore(bow_lore);
         bow_button.setItemMeta(bow_meta);
         duel_inventory.setItem(running_total++, bow_button);
@@ -201,15 +201,6 @@ public class Views {
         reset_stats_button.setItemMeta(reset_stats_meta);
         admin_inventory.setItem(running_total++, reset_stats_button);
 
-        ItemStack config_menu_button = new ItemStack(Material.BEACON, 1);
-        ItemMeta config_menu_meta = config_menu_button.getItemMeta();
-        config_menu_meta.setDisplayName(Utils.formatText("&b&lCONFIG"));
-        List<String> cm_lore = new ArrayList<>();
-        cm_lore.add(Utils.formatText("&bEdit your DuelCraft settings/config. Requires manual restart to update config."));
-        config_menu_meta.setLore(cm_lore);
-        config_menu_button.setItemMeta(config_menu_meta);
-        admin_inventory.setItem(running_total++, config_menu_button);
-
         player.openInventory(admin_inventory);
     }
 
@@ -238,60 +229,5 @@ public class Views {
         about_inventory.setItem(13, information_text);
 
         player.openInventory(about_inventory);
-    }
-
-    public static void openConfigMenu(Player player) {
-        player.closeInventory();
-        if (!player.isOp()) {
-            return;
-        }
-
-        Inventory config_inventory = Bukkit.createInventory(null, 54, Utils.formatText("&c&lDuelCraft " + DuelCraft.duels_version + ": Config"));
-        config_inventory.clear();
-        int running_total = 0;
-
-        config_inventory.setItem(ClickTypes.BACK_CLOSE_LARGE_MENU, GUIHelpers.generateBackButton());
-
-        ItemStack set_armor_button = new ItemStack(Material.NETHERITE_HELMET, 1);
-        ItemMeta armor_meta = set_armor_button.getItemMeta();
-        armor_meta.setDisplayName(Utils.formatText("&9&lSET ARMOR"));
-        List<String> sa_lore = new ArrayList<>();
-        sa_lore.add(Utils.formatText("Set the default armor given in duels."));
-        sa_lore.add(Utils.formatText("&c&lThis will reset the existing armor settings."));
-        armor_meta.setLore(sa_lore);
-        set_armor_button.setItemMeta(armor_meta);
-        config_inventory.setItem(running_total++, set_armor_button);
-
-        ItemStack set_hotbar_button = new ItemStack(Material.GOLDEN_SWORD, 1);
-        ItemMeta hotbar_meta = set_hotbar_button.getItemMeta();
-        hotbar_meta.setDisplayName(Utils.formatText("&e&lSET HOTBAR"));
-        List<String> sh_lore = new ArrayList<>();
-        sh_lore.add(Utils.formatText("Set the default hotbar given in duels."));
-        sh_lore.add(Utils.formatText("&c&lThis will reset the existing hotbar settings."));
-        hotbar_meta.setLore(sh_lore);
-        set_hotbar_button.setItemMeta(hotbar_meta);
-        config_inventory.setItem(running_total++, set_hotbar_button);
-
-        ItemStack set_off_hand_button = new ItemStack(Material.SHIELD, 1);
-        ItemMeta off_hand_meta = set_off_hand_button.getItemMeta();
-        off_hand_meta.setDisplayName(Utils.formatText("&a&lSET OFF-HAND"));
-        List<String> oh_lore = new ArrayList<>();
-        oh_lore.add(Utils.formatText("Set the default off-hand item given in duels."));
-        oh_lore.add(Utils.formatText("&c&lThis will reset the existing off-hand settings."));
-        off_hand_meta.setLore(oh_lore);
-        set_off_hand_button.setItemMeta(off_hand_meta);
-        config_inventory.setItem(running_total++, set_off_hand_button);
-
-        ItemStack set_radius_button = new ItemStack(Material.OAK_FENCE, 1);
-        ItemMeta radius_meta = set_radius_button.getItemMeta();
-        radius_meta.setDisplayName(Utils.formatText("&2&lSET ARENA RADIUS"));
-        List<String> sr_lore = new ArrayList<>();
-        sr_lore.add(Utils.formatText("Set the default arena radius for duels."));
-        sr_lore.add(Utils.formatText("&c&lThis will reset the existing arena radius setting."));
-        radius_meta.setLore(sr_lore);
-        set_radius_button.setItemMeta(radius_meta);
-        config_inventory.setItem(running_total++, set_radius_button);
-
-        player.openInventory(config_inventory);
     }
 }

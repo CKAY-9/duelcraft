@@ -18,7 +18,7 @@ public class PlayerDamage implements Listener {
     public PlayerDamage(DuelCraft duel_craft) {
         this.duel_craft = duel_craft;
     }
-    
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Entity damaged_entity = event.getEntity();
@@ -27,9 +27,9 @@ public class PlayerDamage implements Listener {
         if (!(damaged_entity instanceof Player) || !(damager_entity instanceof Player)) {
             return;
         }
-        
-        Player damaged = (Player)damaged_entity;
-        Player damager = (Player)damager_entity;
+
+        Player damaged = (Player) damaged_entity;
+        Player damager = (Player) damager_entity;
 
         Match match = Match.getCurrentPlayerMatch(damaged, this.duel_craft);
         if (match == null) {
@@ -40,19 +40,16 @@ public class PlayerDamage implements Listener {
             return;
         }
 
-        if (match.getDuelType() == DuelType.CLASSIC) {
-            double final_health = damaged.getHealth() - event.getFinalDamage();
-            boolean is_too_low = final_health < 0.5; // half heart
-            if (!is_too_low) {
-                return;
-            }
-    
+        if (match.getDuelType() == DuelType.SPLEEF || match.getDuelType() == DuelType.BLOWBOW) {
             event.setCancelled(true);
-            match.endGameAndDeclareWinner(damager, damaged);
+            return;
         }
 
-        if (match.getDuelType() == DuelType.SPLEEF) {
+        double final_health = damaged.getHealth() - event.getFinalDamage();
+        boolean is_too_low = final_health < 0.5; // half heart
+        if (is_too_low) {
             event.setCancelled(true);
+            match.endGameAndDeclareWinner(damager, damaged);
         }
     }
 
@@ -63,7 +60,7 @@ public class PlayerDamage implements Listener {
             return;
         }
 
-        Player player = (Player)entity;
+        Player player = (Player) entity;
         Match match = Match.getCurrentPlayerMatch(player, this.duel_craft);
         if (match == null) {
             return;
@@ -73,7 +70,7 @@ public class PlayerDamage implements Listener {
             return;
         }
 
-        if (match.getDuelType() == DuelType.SPLEEF) {
+        if (match.getDuelType() == DuelType.SPLEEF || match.getDuelType() == DuelType.BLOWBOW) {
             event.setCancelled(true);
         }
     }

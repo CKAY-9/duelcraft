@@ -13,10 +13,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import dev.ckay9.duelcraft.DuelCraft;
 import dev.ckay9.duelcraft.Storage;
@@ -127,12 +129,14 @@ public class Match {
         this.getChallenger().playSound(this.getChallenger(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
         this.getChallenger()
                 .sendMessage(Utils.formatText("&a&l[DUELS] Sent invite to " + this.getChallenged().getName() + "!"));
-        
+
         String duel_mode = "Classic Duel";
         if (this.getDuelType() == DuelType.CLASSIC) {
             duel_mode = "Classic Duel";
         } else if (this.getDuelType() == DuelType.SPLEEF) {
             duel_mode = "Spleef Duel";
+        } else if (this.getDuelType() == DuelType.BLOWBOW) {
+            duel_mode = "Blow Bow Duel";
         }
 
         this.getChallenged()
@@ -167,7 +171,7 @@ public class Match {
         start_count.runnable_id = id;
     }
 
-    private void fillInventories() {
+    private void fillSpleefInventories() {
         Player challenged = this.getChallenged();
         Player challenger = this.getChallenger();
         PlayerInventory cd_inv = challenged.getInventory();
@@ -176,73 +180,101 @@ public class Match {
         cd_inv.clear();
         cr_inv.clear();
 
-        if (this.getDuelType() == DuelType.SPLEEF) {
-            cd_inv.setItem(0, new ItemStack(Material.DIAMOND_SHOVEL, 1));
-            cr_inv.setItem(0, new ItemStack(Material.DIAMOND_SHOVEL, 1));
-            cd_inv.setItem(1, new ItemStack(Material.FISHING_ROD, 1));
-            cr_inv.setItem(1, new ItemStack(Material.FISHING_ROD, 1));
-            
-            return;
-        }
+        cd_inv.setItem(0, new ItemStack(Material.DIAMOND_SHOVEL, 1));
+        cr_inv.setItem(0, new ItemStack(Material.DIAMOND_SHOVEL, 1));
+        cd_inv.setItem(1, new ItemStack(Material.FISHING_ROD, 1));
+        cr_inv.setItem(1, new ItemStack(Material.FISHING_ROD, 1));
+    }
 
-        if (this.getDuelType() == DuelType.CLASSIC) {
+    private void fillBlowBowInventories() {
+        Player challenged = this.getChallenged();
+        Player challenger = this.getChallenger();
+        PlayerInventory cd_inv = challenged.getInventory();
+        PlayerInventory cr_inv = challenger.getInventory();
 
-            // Hotbar Items
-            ConfigurationSection hotbar_section = Storage.config.getConfigurationSection("config.duel.hotbar");
-            Set<String> keys = hotbar_section.getKeys(false);
-            int position = 0;
-            for (String key : keys) {
-                if (position > 9) {
-                    break;
-                }
+        cd_inv.clear();
+        cr_inv.clear();
 
-                ConfigurationSection hotbar_item = hotbar_section.getConfigurationSection(key);
-                String material_string = hotbar_item.getString("material");
-                Material material = Material.matchMaterial(material_string);
-                if (material == null) {
-                    continue;
-                }
+        ItemStack explosive_bow = new ItemStack(Material.BOW, 1);
+        ItemMeta explosive_bow_meta = explosive_bow.getItemMeta();
+        explosive_bow_meta.setItemName(Utils.formatText("&4&lEXPLOSIVE BOW"));
+        explosive_bow_meta.setDisplayName(Utils.formatText("&4&lEXPLOSIVE BOW"));
+        List<String> lore = new ArrayList<>();
+        lore.add(Utils.formatText("&c&lThis bow will blow your enemies away, far... far away"));
+        explosive_bow_meta.setLore(lore);
+        explosive_bow_meta.setUnbreakable(true);
+        explosive_bow.setItemMeta(explosive_bow_meta);
+        explosive_bow.addUnsafeEnchantment(Enchantment.PUNCH, 1);
+        explosive_bow.addUnsafeEnchantment(Enchantment.INFINITY, 1);
 
-                int count = hotbar_item.getInt("count");
-                ItemStack stack = new ItemStack(material, count);
-                cd_inv.setItem(position, stack);
-                cr_inv.setItem(position, stack);
-                position++;
+        cd_inv.setItem(0, explosive_bow);
+        cr_inv.setItem(0, explosive_bow);
+        cd_inv.setItem(1, new ItemStack(Material.ARROW, 1));
+        cr_inv.setItem(1, new ItemStack(Material.ARROW, 1));
+    }
+
+    private void fillClassicInventories() {
+        Player challenged = this.getChallenged();
+        Player challenger = this.getChallenger();
+        PlayerInventory cd_inv = challenged.getInventory();
+        PlayerInventory cr_inv = challenger.getInventory();
+
+        cd_inv.clear();
+        cr_inv.clear();
+
+        // Hotbar Items
+        ConfigurationSection hotbar_section = Storage.config.getConfigurationSection("config.duel.hotbar");
+        Set<String> keys = hotbar_section.getKeys(false);
+        int position = 0;
+        for (String key : keys) {
+            if (position > 9) {
+                break;
             }
 
-            // Off hand item
-            ConfigurationSection off_hand_section = Storage.config.getConfigurationSection("config.duel.off_hand");
-            String off_hand_string = off_hand_section.getString("material");
-            Material off_hand_material = Material.matchMaterial(off_hand_string);
-            int off_hand_count = off_hand_section.getInt("count");
-            ItemStack off_hand_stack = new ItemStack(off_hand_material, off_hand_count);
-            cd_inv.setItemInOffHand(off_hand_stack);
-            cr_inv.setItemInOffHand(off_hand_stack);
+            ConfigurationSection hotbar_item = hotbar_section.getConfigurationSection(key);
+            String material_string = hotbar_item.getString("material");
+            Material material = Material.matchMaterial(material_string);
+            if (material == null) {
+                continue;
+            }
 
-            // Armor
-            ConfigurationSection armor_section = Storage.config.getConfigurationSection("config.duel.armor");
-            List<String> armor_pieces = armor_section.getStringList("pieces");
-
-            Material helmet_material = Material.matchMaterial(armor_pieces.get(0));
-            ItemStack helmet_stack = new ItemStack(helmet_material, 1);
-            Material chestplate_material = Material.matchMaterial(armor_pieces.get(1));
-            ItemStack chestplate_stack = new ItemStack(chestplate_material, 1);
-            Material leggings_material = Material.matchMaterial(armor_pieces.get(2));
-            ItemStack leggings_stack = new ItemStack(leggings_material, 1);
-            Material boots_material = Material.matchMaterial(armor_pieces.get(3));
-            ItemStack boots_stack = new ItemStack(boots_material, 1);
-
-            cd_inv.setHelmet(helmet_stack);
-            cd_inv.setChestplate(chestplate_stack);
-            cd_inv.setLeggings(leggings_stack);
-            cd_inv.setBoots(boots_stack);
-            cr_inv.setHelmet(helmet_stack);
-            cr_inv.setChestplate(chestplate_stack);
-            cr_inv.setLeggings(leggings_stack);
-            cr_inv.setBoots(boots_stack);
-
-            return;
+            int count = hotbar_item.getInt("count");
+            ItemStack stack = new ItemStack(material, count);
+            cd_inv.setItem(position, stack);
+            cr_inv.setItem(position, stack);
+            position++;
         }
+
+        // Off hand item
+        ConfigurationSection off_hand_section = Storage.config.getConfigurationSection("config.duel.off_hand");
+        String off_hand_string = off_hand_section.getString("material");
+        Material off_hand_material = Material.matchMaterial(off_hand_string);
+        int off_hand_count = off_hand_section.getInt("count");
+        ItemStack off_hand_stack = new ItemStack(off_hand_material, off_hand_count);
+        cd_inv.setItemInOffHand(off_hand_stack);
+        cr_inv.setItemInOffHand(off_hand_stack);
+
+        // Armor
+        ConfigurationSection armor_section = Storage.config.getConfigurationSection("config.duel.armor");
+        List<String> armor_pieces = armor_section.getStringList("pieces");
+
+        Material helmet_material = Material.matchMaterial(armor_pieces.get(0));
+        ItemStack helmet_stack = new ItemStack(helmet_material, 1);
+        Material chestplate_material = Material.matchMaterial(armor_pieces.get(1));
+        ItemStack chestplate_stack = new ItemStack(chestplate_material, 1);
+        Material leggings_material = Material.matchMaterial(armor_pieces.get(2));
+        ItemStack leggings_stack = new ItemStack(leggings_material, 1);
+        Material boots_material = Material.matchMaterial(armor_pieces.get(3));
+        ItemStack boots_stack = new ItemStack(boots_material, 1);
+
+        cd_inv.setHelmet(helmet_stack);
+        cd_inv.setChestplate(chestplate_stack);
+        cd_inv.setLeggings(leggings_stack);
+        cd_inv.setBoots(boots_stack);
+        cr_inv.setHelmet(helmet_stack);
+        cr_inv.setChestplate(chestplate_stack);
+        cr_inv.setLeggings(leggings_stack);
+        cr_inv.setBoots(boots_stack);
     }
 
     private void prepareGame() {
@@ -260,19 +292,26 @@ public class Match {
         world.setCenterLocation(new Location(world.getWorld(), 0, 100, 0));
         if (this.getDuelType() == DuelType.CLASSIC) {
             world.constructClassicArena();
-        }
-
-        if (this.getDuelType() == DuelType.SPLEEF) {
+        } else if (this.getDuelType() == DuelType.SPLEEF) {
             world.constructSpleefArena();
+        } else if (this.getDuelType() == DuelType.BLOWBOW) {
+            world.constructBlowBowArena();
         }
     }
 
     public void beginGame() {
-        this.setStarted(true);
-        this.fillInventories();
-
         Player challenger = this.getChallenger();
         Player challenged = this.getChallenged();
+
+        if (this.getDuelType() == DuelType.CLASSIC) {
+            this.fillClassicInventories();
+        } else if (this.getDuelType() == DuelType.SPLEEF) {
+            this.fillSpleefInventories();
+        } else if (this.getDuelType() == DuelType.BLOWBOW) {
+            this.fillBlowBowInventories();
+            challenger.playSound(challenger, Sound.ITEM_GOAT_HORN_SOUND_6, 1, 1);
+            challenged.playSound(challenged, Sound.ITEM_GOAT_HORN_SOUND_6, 1, 1);
+        }
 
         this.getDuelWorld().teleportPlayerToWorldSpawn(challenger);
         this.getDuelWorld().teleportPlayerToWorldSpawn(challenged);
@@ -282,6 +321,8 @@ public class Match {
         challenged.setHealth(20);
         challenger.setSaturation(20);
         challenged.setSaturation(20);
+
+        this.setStarted(true);
     }
 
     public void endGameAndDeclareWinner(Player winner, Player loser) {
@@ -343,7 +384,7 @@ public class Match {
 
     public static Match createSpleefMatch(DuelCraft duel_craft, Player challenger, Player challenged) {
         Match new_match = new Match(duel_craft, challenger, challenged);
-        challenger.closeInventory();          
+        challenger.closeInventory();
         duel_craft.matches.add(new_match);
         new_match.setDuelType(DuelType.SPLEEF);
         new_match.notifyPlayersOfInvite();
@@ -351,9 +392,19 @@ public class Match {
         return new_match;
     }
 
+    public static Match createBlowBowMatch(DuelCraft duel_craft, Player challenger, Player challenged) {
+        Match new_match = new Match(duel_craft, challenger, challenged);
+        challenger.closeInventory();
+        duel_craft.matches.add(new_match);
+        new_match.setDuelType(DuelType.BLOWBOW);
+        new_match.notifyPlayersOfInvite();
+
+        return new_match;
+    }
+
     public static Match createClassicMatch(DuelCraft duel_craft, Player challenger, Player challenged) {
         Match new_match = new Match(duel_craft, challenger, challenged);
-        challenger.closeInventory();          
+        challenger.closeInventory();
         duel_craft.matches.add(new_match);
         new_match.setDuelType(DuelType.CLASSIC);
         new_match.notifyPlayersOfInvite();
@@ -381,7 +432,7 @@ public class Match {
                 return match;
             }
         }
-        
+
         return null;
     }
 

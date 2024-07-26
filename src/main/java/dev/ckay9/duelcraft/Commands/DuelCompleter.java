@@ -45,6 +45,7 @@ public class DuelCompleter implements TabCompleter {
             if (!is_waiting) {
                 completers.add("spleef");
                 completers.add("classic");
+                completers.add("blowbow");
             } else {
                 completers.add("delete");
             }

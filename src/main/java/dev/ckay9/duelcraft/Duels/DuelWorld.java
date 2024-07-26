@@ -11,6 +11,7 @@ import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
+import org.joml.Math;
 
 import dev.ckay9.duelcraft.DuelCraft;
 import dev.ckay9.duelcraft.Storage;
@@ -32,8 +33,8 @@ public class DuelWorld extends ChunkGenerator {
     public World generateWorld(String name) {
         WorldCreator world_creator = new WorldCreator("match_" + name);
 
-        world_creator.environment(World.Environment.NORMAL);
         world_creator.type(WorldType.FLAT);
+        world_creator.generateStructures(false);
 
         World new_world = world_creator.createWorld();
         new_world.setDifficulty(Difficulty.PEACEFUL);
@@ -67,10 +68,10 @@ public class DuelWorld extends ChunkGenerator {
                 for (int z = -100; z < 100; z++) {
                     if (floor == floor_count) {
                         Block block = this.getWorld().getBlockAt(
-                            new Location(this.getWorld(),
-                                    center_location.getX() + x,
-                                    center_location.getY() - (1 + (floor * wall_height)),
-                                    center_location.getZ() + z));
+                                new Location(this.getWorld(),
+                                        center_location.getX() + x,
+                                        center_location.getY() - (1 + (floor * wall_height)),
+                                        center_location.getZ() + z));
                         block.setType(Material.BEDROCK);
                         continue;
                     }
@@ -133,6 +134,61 @@ public class DuelWorld extends ChunkGenerator {
                     Block block = this.getWorld().getBlockAt(block_location);
                     block.setType(this.randomWallMaterial());
                 }
+            }
+        }
+    }
+
+    public void constructBlowBowArena() {
+        Location center_location = this.getCenterLocation();
+        this.arena_radius = Storage.config.getInt("config.blowbow.platform_radius", 32);
+        this.wall_height = 40;
+        double deg_per_turn = 1;
+
+        for (int x = -arena_radius * 5; x < arena_radius * 5; x++) {
+            for (int z = -arena_radius * 5; z < arena_radius * 5; z++) {
+                Location point = new Location(
+                        this.getWorld(),
+                        center_location.getX() + x,
+                        center_location.getY() - 10,
+                        center_location.getZ() + z);
+                Block block = this.getWorld().getBlockAt(point);
+                block.setType(Material.LAVA);
+            }
+        }
+
+        for (int x = -arena_radius; x < arena_radius; x++) {
+            for (int z = -arena_radius; z < arena_radius; z++) {
+                Location point = new Location(
+                        this.getWorld(),
+                        center_location.getX() + x,
+                        center_location.getY() - 1,
+                        center_location.getZ() + z);
+                double distance = Math
+                        .sqrt(((point.getX() - center_location.getX()) * (point.getX() - center_location.getX()))
+                                + ((point.getZ() - center_location.getZ()) * (point.getZ() - center_location.getZ())));
+                boolean inside_check = distance < arena_radius;
+                if (!inside_check) {
+                    continue;
+                }
+
+                Block block = this.getWorld().getBlockAt(point);
+                block.setType(Material.WHITE_CONCRETE);
+            }
+        }
+
+        for (int deg = 0; deg < 360; deg += deg_per_turn) {
+            double rads = Math.toRadians(deg);
+            double x_distance = Math.cos(rads) * (arena_radius * 2);
+            double z_distance = Math.sin(rads) * (arena_radius * 2);
+
+            for (int y_add = 0; y_add < wall_height; y_add++) {
+                Location block_location = new Location(
+                        this.getWorld(),
+                        center_location.getX() + x_distance,
+                        center_location.getY() + y_add,
+                        center_location.getZ() + z_distance);
+                Block block = this.getWorld().getBlockAt(block_location);
+                block.setType(Material.OBSIDIAN);
             }
         }
     }
@@ -211,6 +267,20 @@ public class DuelWorld extends ChunkGenerator {
         }
 
         teleport_count++;
+    }
+
+    public static Match getMatchFromWorld(DuelCraft duel_craft, World world) {
+        for (int i = 0; i < duel_craft.matches.size(); i++) {
+            Match match = duel_craft.matches.get(i);
+            DuelWorld duel_world = match.getDuelWorld();
+            World a_world = duel_world.getWorld();
+            
+            if (a_world == world) {
+                return match;
+            }
+        }
+
+        return null;
     }
 
     public long getWorldID() {

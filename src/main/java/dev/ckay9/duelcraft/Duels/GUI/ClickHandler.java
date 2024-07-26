@@ -186,6 +186,9 @@ public class ClickHandler implements Listener {
             case 11: // Spleef
                 match.setDuelType(DuelType.SPLEEF);
                 break;
+            case 12: // Blow Bow
+                match.setDuelType(DuelType.BLOWBOW);
+                break;
             default:
                 break;
         }
@@ -248,23 +251,8 @@ public class ClickHandler implements Listener {
                 clicker.sendMessage(Utils.formatText("&2&l[DUELS] Successfully reset stats!"));
                 clicker.playSound(clicker, Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
                 break;
-            case 12: // Config slot
-                Views.openConfigMenu(clicker);
-                break;
             default:
                 break;
-        }
-    }
-
-    private void handleConfig(InventoryClickEvent event) {
-        Player clicker = (Player)event.getWhoClicked();
-        if (event.getSlot() == ClickTypes.BACK_CLOSE_LARGE_MENU) {
-            Views.openNavigationMenu(clicker, this.duels);
-            return;
-        }
-        
-        if (!clicker.isOp()) {
-            return;
         }
     }
 
@@ -300,10 +288,6 @@ public class ClickHandler implements Listener {
         }
         if (inv_title.contains("Admin")) {
             handleAdmin(event);
-            return;
-        }
-        if (inv_title.contains("Config")) {
-            handleConfig(event);
             return;
         }
         if (inv_title.contains("About")) {
