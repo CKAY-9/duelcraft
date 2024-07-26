@@ -50,8 +50,24 @@ public class Storage {
                 config.set("config.match_accept_timeout", 300);
             }
 
-            if (!config.isSet("config.arena_radius")) {
-                config.set("config.arena_radius", 32);
+            if (!config.isSet("config.spleef.wall_height")) {
+                config.set("config.spleef.wall_height", 5);
+            }
+
+            if (!config.isSet("config.spleef.radius")) {
+                config.set("config.spleef.radius", 10);
+            }
+
+            if (!config.isSet("config.spleef.floors")) {
+                config.set("config.spleef.floors", 8);
+            }
+
+            if (!config.isSet("config.arena.radius")) {
+                config.set("config.arena.radius", 32);
+            }
+
+            if (!config.isSet("config.arena.wall_height")) {
+                config.set("config.arena.wall_height", 10);
             }
 
             if (!config.isSet("config.duel.hotbar")) {

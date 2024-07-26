@@ -21,9 +21,9 @@ public class DuelWorld extends ChunkGenerator {
     World duel_world;
     Location center_location;
     private int teleport_count = 0;
-    public int arena_radius = Storage.config.getInt("config.arena_radius", 32);
-    public int wall_height = 10;
-    public int floor_count = 10;
+    public int arena_radius = Storage.config.getInt("config.arena.radius", 32);
+    public int wall_height = Storage.config.getInt("config.arena.wall_height", 10);
+    public int floor_count = Storage.config.getInt("config.spleef.floors", 8);
 
     public DuelWorld(DuelCraft duels) {
         this.duels = duels;
@@ -58,6 +58,8 @@ public class DuelWorld extends ChunkGenerator {
 
     public void constructSpleefArena() {
         Location center_location = this.getCenterLocation();
+        wall_height = Storage.config.getInt("config.spleef.wall_height", 5);
+        arena_radius = Storage.config.getInt("config.spleef.radius", 10);
 
         // Fill floor
         for (int floor = 0; floor < (floor_count + 1); floor++) {

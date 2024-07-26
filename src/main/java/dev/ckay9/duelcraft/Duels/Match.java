@@ -179,7 +179,9 @@ public class Match {
         if (this.getDuelType() == DuelType.SPLEEF) {
             cd_inv.setItem(0, new ItemStack(Material.DIAMOND_SHOVEL, 1));
             cr_inv.setItem(0, new ItemStack(Material.DIAMOND_SHOVEL, 1));
-
+            cd_inv.setItem(1, new ItemStack(Material.FISHING_ROD, 1));
+            cr_inv.setItem(1, new ItemStack(Material.FISHING_ROD, 1));
+            
             return;
         }
 
