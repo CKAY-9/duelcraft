@@ -21,7 +21,7 @@ import dev.ckay9.duelcraft.Tasks.MatchClearer;
 public class DuelCraft extends JavaPlugin {
     public ArrayList<Match> matches = new ArrayList<>();
     public MatchClearer match_clearer;
-    public static String duels_version = "v1.1";
+    public static String duels_version = "v1.1.1";
 
     @Override
     public void onEnable() {
