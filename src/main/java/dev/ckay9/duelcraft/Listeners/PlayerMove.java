@@ -27,7 +27,7 @@ public class PlayerMove implements Listener {
             return;
         }
 
-        if (!match.hasBeenCreated() || !match.hasAccepted()) {
+        if (!match.hasBeenCreated() || !match.hasAccepted() || match.hasEnded()) {
             return;
         }
 
