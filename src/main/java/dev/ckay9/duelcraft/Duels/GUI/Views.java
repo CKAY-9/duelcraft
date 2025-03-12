@@ -82,7 +82,7 @@ public class Views {
             }
             
             if (ply.getUniqueId() == player.getUniqueId()) {
-                //continue;
+                continue;
             }
 
             ItemStack player_head = new ItemStack(Material.PLAYER_HEAD, 1);

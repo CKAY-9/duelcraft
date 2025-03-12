@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.projectiles.ProjectileSource;
 
 import dev.ckay9.duelcraft.DuelCraft;
+import dev.ckay9.duelcraft.Storage;
 import dev.ckay9.duelcraft.Duels.DuelWorld;
 import dev.ckay9.duelcraft.Duels.Match;
 
@@ -51,6 +52,6 @@ public class ProjectileEvents implements Listener {
             return;
         }
 
-        world.createExplosion(arrow.getLocation(), (float)(arrow.getDamage() * 35), false, false);
+        world.createExplosion(arrow.getLocation(), (float)(arrow.getDamage() * Storage.config.getInt("config.blowbow.explosion_power", 15)), false, false);
     }
 }

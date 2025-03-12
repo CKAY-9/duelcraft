@@ -62,6 +62,10 @@ public class Storage {
                 config.set("config.blowbow.platform_radius", 8);
             }
 
+            if (!config.isSet("config.blowbow.explosion_power")) {
+                config.set("config.blowbow.explosion_power", 15);
+            }
+
             if (!config.isSet("config.spleef.floors")) {
                 config.set("config.spleef.floors", 8);
             }
